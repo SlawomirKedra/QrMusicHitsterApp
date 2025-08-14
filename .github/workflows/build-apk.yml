@@ -29,7 +29,18 @@ jobs:
         run: |
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" >/dev/null
 
-      # 👉 Pobieramy i używamy Gradle 8.6 (bez wrappera, wrapper nie jest potrzebny)
+      # 🔧 DODANE: utworzenie gradle.properties z AndroidX
+      - name: Configure gradle.properties (AndroidX + Jetifier)
+        run: |
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g
+          android.useAndroidX=true
+          android.enableJetifier=true
+          EOF
+          echo "Created gradle.properties:"
+          cat gradle.properties
+
+      # Gradle 8.6 bez wrappera
       - name: Download Gradle 8.6
         run: |
           curl -sL https://services.gradle.org/distributions/gradle-8.6-bin.zip -o gradle.zip
