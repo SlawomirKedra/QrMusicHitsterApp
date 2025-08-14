@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.Material3.Dark.NoActionBar" parent="Theme.Material3.Dark.NoActionBar"/>
+    <color name="black_overlay">#80000000</color>
+    <color name="lime">#73FF00</color>
+</resources>
