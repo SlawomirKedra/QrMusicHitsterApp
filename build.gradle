@@ -9,13 +9,7 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-task clean(type: Delete) {
+// zamiast task clean(...) użyj zapisu kompatybilnego z Gradle 8
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
