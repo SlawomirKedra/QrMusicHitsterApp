@@ -4,8 +4,8 @@ pluginManagement {
         google()
         mavenCentral()
     }
+    // <<< WERSJE PLUGINÓW – KLUCZOWE >>>
     plugins {
-        // WERSJE pluginów – dopisz to!
         id("com.android.application") version "8.4.2"
         id("org.jetbrains.kotlin.android") version "1.9.24"
     }
