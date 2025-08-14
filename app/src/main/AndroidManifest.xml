@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.slawomirkedra.qrmusic">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,20 +10,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Material3.Dark.NoActionBar">
-        <activity android:name="com.slawomirkedra.qrmusic.AuthRedirectActivity">
+
+        <!-- Powrót z autoryzacji Spotify -->
+        <activity
+            android:name="com.slawomirkedra.qrmusic.AuthRedirectActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="qrmusicapp" android:host="callback" />
+                <data
+                    android:scheme="qrmusicapp"
+                    android:host="callback" />
             </intent-filter>
         </activity>
 
-        <activity android:name="com.slawomirkedra.qrmusic.MainActivity">
+        <!-- Ekran główny -->
+        <activity
+            android:name="com.slawomirkedra.qrmusic.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
+
 </manifest>
