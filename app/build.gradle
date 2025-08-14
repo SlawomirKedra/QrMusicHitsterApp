@@ -17,6 +17,12 @@ android {
 
         vectorDrawables.useSupportLibrary = true
     }
+    // na wszelki wypadek – unika konfliktów zasobów z AAR
+    packagingOptions {
+        resources {
+            excludes += ["META-INF/*"]
+        }
+    }
 
     buildTypes {
         release {
