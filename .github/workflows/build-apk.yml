@@ -34,11 +34,11 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | sdkmanager --licenses
 
+      # Budujemy AAR-em Spotify – najlepiej działa z build-tools 33.0.2
       - name: Install Android platforms & build-tools
         run: |
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" >/dev/null
+          sdkmanager "platforms;android-34" "build-tools;33.0.2" "platform-tools" >/dev/null
 
-      # kluczowe: AndroidX tak, Jetifier NIE (to Jetifier produkował „jetified-…AAR/AndroidManifest.xml”)
       - name: Configure gradle.properties
         run: |
           cat > gradle.properties <<'EOF'
@@ -46,26 +46,15 @@ jobs:
           android.useAndroidX=true
           android.enableJetifier=false
           EOF
-          echo "gradle.properties:"
           cat gradle.properties
 
-      # (opcjonalnie) sanitacja własnych layoutów XML
-      - name: Sanitize XML layouts (remove BOM and XML prolog)
-        run: |
-          set -e
-          if [ -d app/src/main/res/layout ]; then
-            find app/src/main/res/layout -name "*.xml" -print0 | xargs -0 -I{} bash -c 'perl -0777 -pe "s/^\x{FEFF}//" -i "{}"'
-            find app/src/main/res/layout -name "*.xml" -print0 | xargs -0 -I{} bash -c 'sed -i "1{/^<\\?xml/d;}" "{}"'
-          fi
-
-      # pobranie oficjalnego AAR Spotify App Remote 0.8.0 i wgranie do app/libs
       - name: Download Spotify App Remote AAR
         run: |
           mkdir -p app/libs
           curl -L \
             https://github.com/spotify/android-sdk/releases/download/0.8.0-appremote/spotify-app-remote-release-0.8.0.aar \
             -o app/libs/spotify-app-remote-release-0.8.0.aar
-          ls -l app/libs
+          ls -lh app/libs
 
       - name: Download Gradle 8.6
         run: |
