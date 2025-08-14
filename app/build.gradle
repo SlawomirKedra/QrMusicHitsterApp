@@ -53,5 +53,6 @@ dependencies {
 
     implementation "androidx.browser:browser:1.8.0"
 
-    implementation 'com.spotify.android:app-remote:0.8.0'
+    implementation files('libs/spotify-app-remote-release-0.8.0.aar')
+
 }
