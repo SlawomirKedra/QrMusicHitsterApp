@@ -10,18 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Pobranie repo
+      # Cache Gradle (szybsze kolejne buildy)
+      - name: Setup Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      # Repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) JDK 17
+      # JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # 3) Android SDK
+      # Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -32,27 +42,27 @@ jobs:
         run: |
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" >/dev/null
 
-      # 4) Ustawienia AndroidX + Jetifier (brak pliku w repo – tworzymy)
-      - name: Configure gradle.properties (AndroidX + Jetifier)
+      # gradle.properties (AndroidX + Jetifier)
+      - name: Configure gradle.properties
         run: |
           cat > gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g
           android.useAndroidX=true
           android.enableJetifier=true
           EOF
-          echo "Created gradle.properties:"
+          echo "gradle.properties:"
           cat gradle.properties
 
-      # 5) Pobierz bibliotekę Spotify App Remote jako AAR (bez maven.spotify.com)
-      - name: Download Spotify App Remote AAR
+      # (Opcjonalnie) sanitacja layoutów XML (usuwa BOM i XML prolog)
+      - name: Sanitize XML layouts (remove BOM and XML prolog)
         run: |
-          mkdir -p app/libs
-          curl -L \
-            https://github.com/spotify/android-sdk/releases/download/0.8.0-appremote/spotify-app-remote-release-0.8.0.aar \
-            -o app/libs/spotify-app-remote-release-0.8.0.aar
-          ls -l app/libs
+          set -e
+          if [ -d app/src/main/res/layout ]; then
+            find app/src/main/res/layout -name "*.xml" -print0 | xargs -0 -I{} bash -c 'perl -0777 -pe "s/^\x{FEFF}//" -i "{}"'
+            find app/src/main/res/layout -name "*.xml" -print0 | xargs -0 -I{} bash -c 'sed -i "1{/^<\\?xml/d;}" "{}"'
+          fi
 
-      # 6) Gradle 8.6 (bez wrappera)
+      # Gradle 8.6 (bez wrappera)
       - name: Download Gradle 8.6
         run: |
           curl -sL https://services.gradle.org/distributions/gradle-8.6-bin.zip -o gradle.zip
@@ -60,11 +70,14 @@ jobs:
           echo "$HOME/gradle/gradle-8.6/bin" >> $GITHUB_PATH
           gradle -v
 
-      # 7) Build APK (debug)
+      # Clean & Build (debug)
+      - name: Clean
+        run: gradle --no-daemon clean
+
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
-      # 8) Artefakt do pobrania
+      # Artefakt APK
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
